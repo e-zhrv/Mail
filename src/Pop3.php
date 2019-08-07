@@ -274,12 +274,19 @@ class Pop3 extends Base
 
         $emails = array();
         for ($i = $min; $i <= $max; $i++) {
+            echo $i."\n";
             $emails[] = $this->getEmailFormat($this->call('RETR '.$i, true));
         }
 
         return $emails;
     }
 
+    public  function  callRset() {
+        echo "STAT: ".$this->call('RSET').";\n";
+    }
+    public  function  callList() {
+        echo "LIST: ".$this->call('LIST').";\n";
+    }
     /**
      * Returns the total number of emails in a mailbox
      *
@@ -287,7 +294,11 @@ class Pop3 extends Base
      */
     public function getEmailTotal()
     {
+        echo "STAT: ".$this->call('RSET').";\n";
         @list($messages, $octets) = explode(' ', $this->call('STAT'));
+
+
+        echo "STAT: ".$this->call('STAT').";\n";
         $messages = is_numeric($messages) ? $messages : 0;
 
         return $messages;

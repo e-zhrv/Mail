@@ -359,6 +359,7 @@ class Imap extends Base
         }
 
         $response = $this->call('LIST', $this->escape('', '*'));
+        print_r($response);
 
         $mailboxes = array();
         foreach ($response as $line) {
@@ -379,7 +380,9 @@ class Imap extends Base
             }
 
             //Fix mailbox name encoded with utf7
-            $mailbox = ImapUtf7::decode(trim($mailbox));
+
+            $mailbox = imap_utf7_decode("[Gmail]/&BBIEMAQ2BD0EPgQ1-");
+            //$mailbox = ImapUtf7::decode(trim($mailbox));
             //Decoding utf8 string result
             $mailbox = utf8_decode($mailbox);
 

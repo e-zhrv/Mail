@@ -404,7 +404,8 @@ class Smtp extends Base
         $headers    = $this->getHeaders($headers);
         $body       = $this->getBody();
 
-        $headers['In-Reply-To'] = $messageId;
+        $headers['References'] = "<".$messageId.">";
+        $headers['In-Reply-To'] = "<".$messageId.">";
 
         if ($topic) {
             $headers['Thread-Topic'] = $topic;
@@ -435,6 +436,9 @@ class Smtp extends Base
 
         //reset (some reason without this, this class spazzes out)
         $this->push('RSET');
+        echo "Reply:\n";
+        print_r($headers);
+        echo "\n";
 
         return $headers;
     }
@@ -554,6 +558,7 @@ class Smtp extends Base
         //reset (some reason without this, this class spazzes out)
         $this->push('RSET');
 
+
         return $headers;
     }
 
@@ -572,11 +577,17 @@ class Smtp extends Base
             ->test(2, 'bool');
 
         if ($html) {
-            $this->body['text/html'] = $body;
+            $body_encoded = $body;
+//          $body_encoded = rtrim(chunk_split(base64_encode($body)));
+
+            $this->body['text/html'] = $body_encoded;
             $body = strip_tags($body);
         }
 
-        $this->body['text/plain'] = $body;
+        $body_encoded = $body;
+//      $body_encoded = rtrim(chunk_split(base64_encode($body)));
+
+        $this->body['text/plain'] = $body_encoded;
 
         return $this;
     }
@@ -768,6 +779,8 @@ class Smtp extends Base
 
         list($account, $suffix) = explode('@', $this->username);
 
+        $suffix = "mail.google.com";
+
         $headers = array(
             'Date'          => $timestamp,
             'Subject'       => $subject,
@@ -782,11 +795,12 @@ class Smtp extends Base
             $headers['Bcc'] = implode(', ', $bcc);
         }
 
-        $headers['Message-ID']  = '<'.md5(uniqid(time())).'.eden@'.$suffix.'>';
+        $headers['Message-ID']  = '<'.md5(uniqid(time())).'@'.$suffix.'>';
 
         $headers['Thread-Topic'] = $this->subject;
+        $newline  = "\r\n";
 
-        $headers['Reply-To'] = '<'.$this->username.'>';
+        //$headers['Reply-To'] = '<'.$this->username.'>';
 
         foreach ($customHeaders as $key => $value) {
             $headers[$key] = $value;
@@ -824,6 +838,7 @@ class Smtp extends Base
     protected function getHtmlBody()
     {
         $charset    = $this->isUtf8($this->body['text/html']) ? 'utf-8' : 'US-ASCII';
+        $charset = 'utf-8';
         $html       = str_replace("\r", '', trim($this->body['text/html']));
 
         $encoded = explode("\n", $this->quotedPrintableEncode($html));
@@ -870,6 +885,7 @@ class Smtp extends Base
     protected function getPlainBody()
     {
         $charset    = $this->isUtf8($this->body['text/plain']) ? 'utf-8' : 'US-ASCII';
+        $charset = 'utf-8';
         $plane      = str_replace("\r", '', trim($this->body['text/plain']));
         $count      = ceil(strlen($plane) / 998);
 
