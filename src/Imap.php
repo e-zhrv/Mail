@@ -292,6 +292,9 @@ class Imap extends Base
                 $max = $this->total;
             }
 
+            if($this->total<($start-$range))
+                return array();
+
             //calculate min (ex. 296 - 15 + 1 = 282)
             $min = $max - $range + 1;
 
@@ -303,6 +306,7 @@ class Imap extends Base
 
             //now add min and max to set (ex. 282:296 or 1 - 300)
             $set = $min . ':' . $max;
+            print_r("SET: ".$set);
 
             //if min equal max
             if ($min == $max) {
@@ -381,7 +385,7 @@ class Imap extends Base
 
             //Fix mailbox name encoded with utf7
 
-            $mailbox = imap_utf7_decode("[Gmail]/&BBIEMAQ2BD0EPgQ1-");
+            //$mailbox = imap_utf7_decode("[Gmail]/&BBIEMAQ2BD0EPgQ1-");
             //$mailbox = ImapUtf7::decode(trim($mailbox));
             //Decoding utf8 string result
             $mailbox = utf8_decode($mailbox);
@@ -1096,7 +1100,7 @@ class Imap extends Base
                 //if there is email data
                 if (!empty($email)) {
                     //create the email format and add it to emails
-                    $emails[$uniqueId] = $this->getEmailFormat($email, $uniqueId, $flags);
+                    $emails[$uniqueId] = $this->getEmailFormat($email, $uniqueId);
 
                     //if all we want is the first one
                     if ($first) {
