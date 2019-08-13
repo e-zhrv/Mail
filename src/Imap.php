@@ -306,7 +306,7 @@ class Imap extends Base
 
             //now add min and max to set (ex. 282:296 or 1 - 300)
             $set = $min . ':' . $max;
-            print_r("SET: ".$set);
+            //print_r("SET: ".$set);
 
             //if min equal max
             if ($min == $max) {
@@ -1167,6 +1167,7 @@ class Imap extends Base
                 //if there is email data
                 if (!empty($email)) {
                     //create the email format and add it to emails
+                    if($flags == null) $flags = [];
                     $emails[$uniqueId] = $this->getEmailFormat($email, $uniqueId, $flags);
 
                     //if all we want is the first one
